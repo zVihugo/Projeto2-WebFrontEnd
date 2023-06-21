@@ -64,6 +64,103 @@ class Publicacoes {
 
     this.criarElementoPost(novaPostagem);
   }
+
+  criarElementoPost(postagem) {
+    const post = document.createElement("div");
+    const tilt = document.createElement("h1");
+    const de = document.createElement("p");
+    const img = document.createElement("img");
+    const dataAt = document.createElement("p");
+    const exl = document.createElement("button");
+    const alterar = document.createElement("button");
+
+    exl.style.width = "150px";
+    exl.style.backgroundColor = "brown";
+    alterar.style.width = "150px";
+    alterar.style.backgroundColor = "grey";
+
+    tilt.innerHTML = postagem.titulo;
+    de.innerHTML = postagem.descricao;
+    img.src = postagem.imagem;
+    img.style.width = "300px";
+    dataAt.innerHTML = postagem.data;
+    exl.innerHTML = "Excluir";
+    alterar.innerHTML = "Alterar";
+
+    post.classList.add("post");
+    post.appendChild(img);
+    post.appendChild(de);
+    post.appendChild(tilt);
+    post.appendChild(dataAt);
+    post.appendChild(exl);
+    post.appendChild(alterar);
+
+    const containerPosts = document.querySelector(".container-posts");
+    containerPosts.appendChild(post);
+
+    alterar.addEventListener("click", () => {
+      menu.aparecer();
+      this.addTilt.value = postagem.titulo;
+      this.addDesc.value = postagem.descricao;
+      this.addImg.value = postagem.imagem;
+      this.addData.value = postagem.data;
+
+      this.btnAdd.removeEventListener('click', this.adicionar.bind(this));
+
+      this.btnAdd.addEventListener('click', () => {
+        const novoTitulo = this.addTilt.value;
+        const novaDescricao = this.addDesc.value;
+        const novaImagem = this.addImg.value;
+        const novaData = this.addData.value;
+
+        postagem.titulo = novoTitulo;
+        postagem.descricao = novaDescricao;
+        postagem.imagem = novaImagem;
+        postagem.data = novaData;
+
+        localStorage.setItem("publicacoes", JSON.stringify(this.publicacoes));
+
+        this.addTilt.value = '';
+        this.addDesc.value = '';
+        this.addImg.value = '';
+        this.addData.value = '';
+
+        this.btnAdd.removeEventListener('click');
+      });
+    });
+
+    exl.addEventListener("click", () => {
+      const index = this.publicacoes.indexOf(postagem);
+      this.publicacoes.splice(index, 1);
+      localStorage.setItem("publicacoes", JSON.stringify(this.publicacoes));
+      containerPosts.removeChild(post);
+    });
+  }
+
+  preencherPublicacoes() {
+    if (localStorage.getItem("publicacoes")) {
+      this.publicacoes = JSON.parse(localStorage.getItem("publicacoes"));
+      this.publicacoes.forEach((publicacao) => {
+        this.criarElementoPost(publicacao);
+      });
+    }
+  }
+
+  pesquisarPublicacao() {
+    const palavraChave = this.caixaTexto.value.toLowerCase();
+    const posts = document.querySelectorAll('.post');
+
+    posts.forEach((post) => {
+      const conteudo = post.innerHTML.toLowerCase();
+      if (conteudo.includes(palavraChave)) {
+        const conteudoSublinhado = conteudo.replace(
+          new RegExp(palavraChave, 'gi'),
+          (match) => `<span class="sublinhado">${match}</span>`
+        );
+        post.innerHTML = conteudoSublinhado;
+      }
+    });
+  }
 }
 
 const menu = new Menu();
